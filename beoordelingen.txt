@@ -1,0 +1,5 @@
+Naam: Voorbeeld
+Aantal sterren: 3
+Titel: Echt een kutbank
+Beschrijving: Dus ik koop er nog 20
+Datum: 20 Juni 2025
