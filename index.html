@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>BuddyBank - het bankje dat verbindt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            line-height: 1.5;
+            background: #fefaf5;  /* zachte beige/witte achtergrond */
+            color: #1e1e1e;
+        }
+
+        /* Alle afbeeldingen en video's krijgen afgeronde hoeken, object-fit cover voorkomt vervorming */
+        img, video, .wp-block-cover__image-background, .wp-block-image img, .is-resized, .rounded-media {
+            border-radius: 24px !important;
+            object-fit: cover;
+        }
+
+        /* Zorg dat afbeeldingen volledig worden getoond (geen clipping) */
+        .wp-block-image img, figure img, .wp-block-cover img {
+            object-fit: contain !important;
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Cover achtergrond behoudt verhouding maar geen rare uitsnedes */
+        .wp-block-cover {
+            border-radius: 32px;
+            overflow: hidden;
+        }
+
+        .wp-block-cover__image-background {
+            object-fit: cover;
+            border-radius: 0;
+        }
+
+        /* Layout containers */
+        .alignfull {
+            width: 100%;
+        }
+
+        .wp-block-group, .wp-block-columns {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .alignfull.wp-block-group,
+        .alignfull.wp-block-columns {
+            max-width: 100%;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .wp-block-columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .wp-block-column {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Cover block */
+        .wp-block-cover {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .wp-block-cover__background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background-color: #f9f9f9;
+        }
+
+        .has-background-dim-40 {
+            opacity: 0.4;
+        }
+
+        .wp-block-cover__inner-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Koppen */
+        h1, h2, h3 {
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        .has-text-align-center {
+            text-align: center;
+        }
+
+        /* Knoppen */
+        .wp-block-button__link {
+            display: inline-block;
+            background-color: #f0529b;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            text-align: center;
+        }
+
+        .wp-block-button__link:hover {
+            background-color: #d43f82;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+        }
+
+        /* FAQ details */
+        details {
+            background: #f5f5f0;
+            border-radius: 24px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e2d6;
+            transition: 0.2s;
+        }
+
+        details[open] {
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        summary {
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.25rem 0;
+        }
+
+        /* Video afronding */
+        .wp-block-video video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 32px !important;
+            object-fit: cover;
+            max-height: 560px;
+        }
+
+        /* Social Media Icons met aangepaste plaatjes */
+        .social-icon {
+            width: 48px;
+            height: 48px;
+            transition: transform 0.2s ease;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .social-links-custom {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        /* Testimonial slider (vervangt smart slider) */
+        .testimonial-slider {
+            background: #ffffffdd;
+            backdrop-filter: blur(4px);
+            border-radius: 48px;
+            padding: 2rem 1.8rem;
+            max-width: 700px;
+            margin: 2rem auto;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #f0e4d4;
+        }
+
+        .testimonial-text {
+            font-size: 1.2rem;
+            font-style: italic;
+            margin: 0.5rem 0;
+        }
+
+        .testimonial-author {
+            font-weight: 700;
+            margin-top: 0.75rem;
+            color: #f0529b;
+        }
+
+        .testimonial-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .stars {
+            color: #ffb83b;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            margin: 0.5rem 0;
+        }
+
+        .testimonial-date {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 0.5rem;
+        }
+
+        .fade-slide {
+            animation: fadeSlide 0.8s ease forwards;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 782px) {
+            .wp-block-columns {
+                flex-direction: column;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.7rem;
+            }
+            .wp-block-group, .wp-block-columns {
+                padding: 1.5rem 1rem;
+            }
+            .testimonial-slider {
+                margin: 1rem 1rem;
+                padding: 1.5rem;
+            }
+        }
+
+        .has-background {
+            padding: 2rem 1.5rem;
+            border-radius: 32px;
+        }
+
+        .steps-container .wp-block-column {
+            background: #fff;
+            border-radius: 32px;
+            transition: all 0.2s;
+        }
+        body, .has-white-background-color {
+            background-color: #fefaf5;
+        }
+        .white-bg-block {
+            background-color: #fefaf5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- *** GEEN TEKSTEN AANGEPAST. ALLEEN STYLING + SLIDER VERVANGEN *** -->
+
+<!-- Cover -->
+<div class="wp-block-cover alignfull is-light" style="min-height:681px; border-radius: 0px 0px 40px 40px; margin-bottom: 1rem;">
+    <img class="wp-block-cover__image-background wp-image-168 size-full" alt="Stel je BuddyBank samen" src="https://www.buddybank.nl/wp-content/uploads/2025/07/IMG-20250711-WA0004-scaled.jpg" data-object-fit="cover" style="object-fit: cover;"/>
+    <span aria-hidden="true" class="wp-block-cover__background has-ast-global-color-5-background-color has-background-dim-40 has-background-dim"></span>
+    <div class="wp-block-cover__inner-container">
+        <h1 class="wp-block-heading has-text-align-center has-text-color has-link-color" style="color:#404040">BuddyBank - het bankje dat verbindt</h1>
+    </div>
+</div>
+
+<!-- Blok: meisje + tekst -->
+<div class="wp-block-columns alignfull" style="max-width:1280px; margin: 2rem auto;">
+    <div class="wp-block-column" style="flex-basis:40%">
+        <figure class="wp-block-image aligncenter size-large is-resized">
+            <img src="https://www.buddybank.nl/wp-content/uploads/2026/05/IMG_4416-768x1024.jpg" alt="meisje gaat op buddybank zitten omdat ze een speelmaatje zoekt" style="aspect-ratio:3/4;object-fit:contain; width:100%; height:auto; max-height:600px; box-shadow: 0 12px 24px rgba(0,0,0,0.05);"/>
+        </figure>
+    </div>
+    <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:60%">
+        <h2 class="wp-block-heading">BuddyBank zet buitensluiting buiten spel</h2>
+        <p>Iedereen kent dat ene meisje of jongetje nog wel die vroeger niet mee mocht spelen van de andere kinderen. Dit werd niet altijd gezien door leerkrachten of buitenspeel-leid(st)ers. Stel je voor dat dit kind op een vrolijk gekleurd bankje gaat zitten waardoor het voor iedereen duidelijk wordt dat hij/zij graag mee wil doen. Met (of zonder) een gezonde aanmoediging van de schoolleiding wordt hij/zij weer betrokken in het spel. Simpel en zonder veel poespas maar zeer doeltreffend.</p>
+        <p></p><p></p>
+    </div>
+</div>
+
+<!-- zo werkt een BuddyBank -->
+<div class="wp-block-group alignfull white-bg-block" style="background:#fefaf5;">
+    <div style="max-width: 1280px; margin: 0 auto;">
+        <h2 class="wp-block-heading alignfull has-text-align-center" style="margin-bottom: 1.5rem;">zo werkt een BuddyBank...</h2>
+        <div class="wp-block-columns" id="over">
+            <div class="wp-block-column">
+                <div class="wp-block-cover is-light" style="min-height:568px; border-radius: 32px; overflow:hidden;">
+                    <img class="wp-block-cover__image-background wp-image-220" alt="" src="https://www.buddybank.nl/wp-content/uploads/2025/07/buddybank-oranje-1.gif" data-object-fit="cover" style="object-fit: contain; background: #fefaf5;"/>
+                    <span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span>
+                    <div class="wp-block-cover__inner-container">
+                        <p class="has-text-align-center has-large-font-size"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stappen 1 t/m 4 -->
+<div class="wp-block-group alignfull" style="background: #fefaf5;">
+    <div class="wp-block-columns" id="over" style="max-width: 1400px; margin:0 auto; gap: 1.5rem;">
+        <div class="wp-block-column">
+            <div class="wp-block-columns steps-container" style="gap: 1.8rem;">
+                <div class="wp-block-column has-background" style="background-color:#f0529b; border-radius: 32px; padding: 1.5rem;">
+                    <h3 class="wp-block-heading has-text-align-center" style="color:#fff; font-size:2rem;">1</h3>
+                    <p class="has-text-align-center" style="color:#fff;">Soms heb je even niemand om mee te spelen en durf je het ook misschien niet te vragen of je met een groepje mee mag spelen</p>
+                    <figure class="wp-block-image aligncenter size-large"><img src="https://www.buddybank.nl/wp-content/uploads/2025/07/ik-wil-spelen-1024x574.png" alt="" style="border-radius: 20px; object-fit: contain; width:100%;"/></figure>
+                </div>
+                <div class="wp-block-column" style="background-color:#4a6fa5; border-radius: 32px; padding: 1.5rem;">
+                    <h3 class="wp-block-heading has-text-align-center" style="color:#fff; font-size:2rem;">2</h3>
+                    <p class="has-text-align-center" style="color:#fff;">Als je op de BuddyBank gaat zitten, weten je klasgenootjes dat je zin hebt om te spelen, maar dat je even niet weet hoe je dit moet vragen</p>
+                    <figure class="wp-block-image aligncenter size-large"><img src="https://www.buddybank.nl/wp-content/uploads/2025/07/op-bankje-zitten-1024x575.png" alt="" style="border-radius: 20px; object-fit: contain; width:100%;"/></figure>
+                </div>
+                <div class="wp-block-column" style="background-color:#88b04b; border-radius: 32px; padding: 1.5rem;">
+                    <h3 class="wp-block-heading has-text-align-center" style="color:#fff; font-size:2rem;">3</h3>
+                    <p class="has-text-align-center" style="color:#fff;">Je klasgenootje ziet je zitten en komt naar je toe en vraagt of je mee wilt spelen.</p>
+                    <figure class="wp-block-image aligncenter size-large"><img src="https://www.buddybank.nl/wp-content/uploads/2025/07/vriendje-komt-je-halen-1024x574.png" alt="" style="border-radius: 20px; object-fit: contain; width:100%;"/></figure>
+                </div>
+                <div class="wp-block-column" style="background-color:#f7b05e; border-radius: 32px; padding: 1.5rem;">
+                    <h3 class="wp-block-heading has-text-align-center" style="color:#fff; font-size:2rem;">4</h3>
+                    <p class="has-text-align-center" style="color:#fff;">Je springt op van je bankje en bent weer lekker aan het spelen met je andere vriendjes!</p>
+                    <figure class="wp-block-image aligncenter size-large"><img src="https://www.buddybank.nl/wp-content/uploads/2025/07/Weer-samen-spelen-1024x574.png" alt="" style="border-radius: 20px; object-fit: contain; width:100%;"/></figure>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Video -->
+<figure class="wp-block-video alignfull" style="padding:0 0.5rem; margin: 1rem auto; text-align:center;">
+    <video autoplay loop muted playsinline src="https://www.buddybank.nl/wp-content/uploads/2025/10/IMG_8922.mov" style="width:100%; max-width:1200px; border-radius: 36px; box-shadow: 0 16px 30px rgba(0,0,0,0.08);"></video>
+</figure>
+
+<!-- BuddyBank laat iedereen meedoen -->
+<div class="wp-block-group alignfull" style="max-width:1280px; margin: 3rem auto;">
+    <div class="wp-block-columns alignfull are-vertically-aligned-center">
+        <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:66.66%">
+            <h2 class="wp-block-heading">BuddyBank laat iedereen meedoen</h2>
+            <p>De BuddyBank is een instrument om samenspel en verbinding tussen kinderen te stimuleren, in de vorm van een vrolijk gekleurd bankje op een zichtbare plek zoals bijvoorbeeld het schoolplein. Door op de BuddyBank te gaan zitten geeft het kind aan te willen samenspelen en is die behoefte ook zichtbaar. De omgeving kan daar volgens direct op in springen. De BuddyBank is er om meer samenspel en verbinding met elkaar te bevorderen.</p>
+        </div>
+        <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:33.33%">
+            <figure class="wp-block-image aligncenter size-full is-resized">
+                <img src="https://www.buddybank.nl/wp-content/uploads/2026/05/IMG_0373-scaled.jpg" alt="" style="aspect-ratio:3/4;object-fit:contain; width:100%; height:auto; max-height:600px; border-radius: 32px;"/>
+            </figure>
+        </div>
+    </div>
+</div>
+
+<!-- Waar staat zo'n buddybank? -->
+<div class="wp-block-group alignfull white-bg-block" style="background:#fefaf5;">
+    <div style="max-width:1280px; margin:0 auto;">
+        <h2 class="wp-block-heading has-text-align-center">Waar staat zo'n buddybank?</h2>
+        <div class="wp-block-columns" style="margin-top: 2rem;">
+            <div class="wp-block-column">
+                <div class="wp-block-columns">
+                    <div class="wp-block-column">
+                        <figure class="wp-block-image aligncenter is-resized"><img src="https://www.buddybank.nl/wp-content/uploads/2025/09/speelplaats.png" alt="" style="object-fit:contain; width:100%; max-width:350px; border-radius: 24px;"/></figure>
+                        <h3 class="wp-block-heading has-text-align-center">Speelplaats</h3>
+                    </div>
+                    <div class="wp-block-column">
+                        <figure class="wp-block-image aligncenter is-resized"><img src="https://www.buddybank.nl/wp-content/uploads/2025/09/school.png" alt="" style="object-fit:contain; width:100%; max-width:350px; border-radius: 24px;"/></figure>
+                        <h3 class="wp-block-heading has-text-align-center">School</h3>
+                    </div>
+                    <div class="wp-block-column">
+                        <figure class="wp-block-image aligncenter is-resized"><img src="https://www.buddybank.nl/wp-content/uploads/2025/09/BSO.png" alt="" style="object-fit:contain; width:100%; max-width:350px; border-radius: 24px;"/></figure>
+                        <h3 class="wp-block-heading has-text-align-center">BSO</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="wp-block-group alignfull" style="background: #fefaf5;">
+    <div style="max-width:980px; margin:0 auto; text-align:center; padding: 2rem 1.5rem;">
+        <h2 class="wp-block-heading alignfull has-text-align-center">Gun jij de kids op jouw schoolplein ook meer verbinding?</h2>
+        <div class="wp-block-buttons alignfull" style="margin-top: 2rem;">
+            <div class="wp-block-button has-custom-width wp-block-button__width-50">
+                <a class="wp-block-button__link" href="https://www.buddybank.nl/product/buddybank/" style="border-radius:10px;">Yes! ik wil zo'n BuddyBank!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rock Products bijdrage -->
+<div class="wp-block-columns alignfull" style="max-width:1280px; margin: 3rem auto;">
+    <div class="wp-block-column" style="flex-basis:40%">
+        <figure class="wp-block-image aligncenter is-resized">
+            <img src="https://www.buddybank.nl/wp-content/uploads/2026/05/freepik__dutch-elementary-school-playground-at-recess-a-bri__56693-1024x747.jpeg" alt="kind haalt iemand van de buddybank om mee te gaan spelen" style="aspect-ratio:3/4;object-fit:contain; width:100%; height:auto; max-height:600px; border-radius: 32px;"/>
+        </figure>
+    </div>
+    <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:60%">
+        <h2 class="wp-block-heading">Rock Products en BuddyBank dragen hun steentje bij</h2>
+        <p>BuddyBank is een uniek concept van Rock Products.</p>
+        <p>Wist u dat Rock Products een sociale firma is in de gemeente Amsterdam. En dat is niet voor niets; wij geloven in ondernemen op een sociale en verantwoorde manier. Met aandacht voor de mensen die het maken. We maken gebruik van circulaire en duurzame materialen en hebben oog voor de volgende generatie.</p>
+        <p>In onze talenthub in Amsterdam bent u van harte welkom om onze vaklui in spé te bewonderen en aan te moedigen.</p>
+        <p>Heeft u als aannemer een opdracht gedaan met een SROI verplichting, dan kunt u daar door middel van onze producten invulling aan geven.</p>
+    </div>
+</div>
+
+<!-- REVIEWS SLIDER - vervangt smart slider, draait elke 8 seconden -->
+<div class="wp-block-group alignfull" style="background:#fefaf5;">
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <h2 class="wp-block-heading has-text-align-center">Wat anderen zeggen over hun BuddyBank</h2>
+        <div id="testimonial-slider-container" class="testimonial-slider">
+            <!-- Wordt gevuld met javascript -->
+        </div>
+    </div>
+</div>
+
+<!-- FAQ -->
+<div class="wp-block-group alignfull" style="background:#fefaf5;">
+    <div style="max-width: 960px; margin:0 auto;">
+        <h2 class="wp-block-heading">Veelgestelde vragen</h2>
+        <details><summary>Van welk materiaal is de BuddyBank gemaakt?</summary><p><em>De poten zijn gemaakt van circulair beton en het zitvlak is gemaakt van lokaal gewonnen douglashout met terugplantgarantie.</em></p></details>
+        <details><summary>Kan ik ook een eigen kleur kiezen?</summary><p><em>Jazeker! De bank is standaard in 4 vrolijke kleuren leverbaar, maar tegen een meerprijs kun je je eigen kleur kiezen voor de poten. Let op; niet alle kleuren in betonverf beschikbaar zijn.</em></p></details>
+        <details><summary>Kan ie makkelijk kapot?</summary><p><em>Nee. De bank staat stevig op zijn betonnen poten. Het gewicht van springende kinderen is geen probleem. Er wordt op het schoolplein regelmatig met fiets of stepjes tegenaan gebotst; dit geeft meestal kleine schade geeft aan verf en beton, maar op de veiligheid geen invloed heeft</em></p></details>
+        <details><summary>Kan mijn logo er in worden gegraveerd?</summary><p><em>Ja, personalisatie is een optie. Tegen een meerprijs kun je je eigen logo er in laten graveren.</em></p></details>
+        <details><summary>Heeft de bank veel onderhoud nodig?</summary><p><em>Om de kleur van het hout te behouden en de print zo intens mogelijk te houden raden we aan na aankoop "direct" te behandelen. Voor Douglas bestaat er een kleurloze lazuur; een olie en impregneer in één. Lees de <a href="https://www.buddybank.nl/onderhoudsinstructie/">onderhoudsinstructies</a> voor meer info.</em></p></details>
+        <details><summary>Hoe lang zit er garantie op de bank?</summary><p><em>De bank is van robuuste materialen gemaakt en kan worden verankerd in de grond. Mocht er dan toch onverhoopt iets mis zijn, dan heb je een jaar garantie. Lees onze <a href="https://www.buddybank.nl/garantievoorwaarden/">garantievoorwaarden</a>.</em></p></details>
+        <details><summary>Moet ik 'm zelf installeren?</summary><p><em>Nee hoor, installatie zit bij de prijs inbegrepen.</em></p></details>
+        <details><summary>Kan ik met mijn SVO of SROI verplichting bij jullie terecht?</summary><p><em>Ja! We zijn een sociale firma in de gemeente Amsterdam. En indien gewenst kunnen we met PSO30+ leveren.</em></p></details>
+    </div>
+</div>
+
+<div class="wp-block-columns" id="contact" style="max-width: 1280px; margin: 2rem auto;">
+    <div class="wp-block-column">
+        <h2 class="wp-block-heading">Staat je vraag hierboven er niet tussen?</h2>
+        <p>Wil je wat vragen, of ben je gewoon benieuwd naar ons verhaal? Neem dan contact met ons op via hallo@buddybank.nl of bel Peter op 06 24 77 75 64</p>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="wp-block-group alignfull" style="background-color:#222222; color:white; margin-top: 2rem;">
+    <div class="wp-block-columns alignfull" style="max-width:1280px; margin:0 auto;">
+        <div class="wp-block-column">
+            <h2 class="wp-block-heading has-text-align-center"><a href="https://www.buddybank.nl/667-2/" style="color:white; text-decoration:none;">Wie wij zijn</a></h2>
+            <p class="has-text-align-center">Hoi, wij zijn de timmermannen van Rock Products, en tevens vaders van opgroeiende kinderen. Het viel ons op dat kinderen soms een duwtje in de rug nodig hebben om meer verbinding met elkaar te maken. Zo kwamen wij op het idee om een vrolijke bank te maken, voor die momenten dat onze kids het even niet meer weten.</p>
+            <div class="wp-block-columns">
+                <div class="wp-block-column"><h3 class="has-text-align-center">contactgegevens</h3><p class="has-text-align-center">E | hallo@buddybank.nl<br>T | +316 24 77 75 64</p></div>
+                <div class="wp-block-column"><h3 class="has-text-align-center">bedrijfsgegevens</h3><p class="has-text-align-center">KVK | 59367903<br>Rhoneweg 2<br>1043 AH Amsterdam</p></div>
+                <div class="wp-block-column"><h3 class="has-text-align-center">sociale media</h3>
+                    <div class="social-links-custom">
+                        <a href="https://wa.me/31624777564" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="whatsapp" class="social-icon" style="width:42px; border-radius: 12px;"></a>
+                        <a href="https://www.instagram.com/rock.products" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="instagram" class="social-icon" style="width:42px; border-radius: 12px;"></a>
+                        <a href="https://www.linkedin.com/company/rockproducts" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="linkedin" class="social-icon" style="width:42px; border-radius: 12px;"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="has-text-align-center" style="padding-bottom: 1.5rem;">BuddyBank is een uniek concept van <a href="https://rockproducts.nl/" style="color:#f5b0c5;">Rock Products.</a><br>Met aandacht en liefde gemaakt in Amsterdam</p>
+</div>
+
+<script>
+    // Beoordelingen data (uit beoordelingen.txt)
+    const reviews = [
+        { naam: "Jim", sterren: 4, titel: "Zelfs de juffies zitten erop!", beschrijving: "Goede bank, lekker stevig.", datum: "20 Juni 2025" },
+        { naam: "Mila", sterren: 5, titel: "Eindelijk niemand meer alleen", beschrijving: "Sinds de BuddyBank op het plein staat, spelen kinderen veel meer samen. Echt een aanrader!", datum: "10 April 2025" },
+        { naam: "Bas", sterren: 5, titel: "Stevig en vrolijk", beschrijving: "Mijn kleuters vinden het geweldig. Ook de begeleiding gebruikt hem om gesprekjes te starten.", datum: "3 Maart 2025" },
+        { naam: "Juf Sanne", sterren: 5, titel: "Pestprotocol versterker", beschrijving: "Het bankje helpt bij buitensluiting. Simpel maar geniaal.", datum: "18 Januari 2025" },
+        { naam: "Robin", sterren: 4, titel: "Leuk design", beschrijving: "Past mooi in de speeltuin en nodigt uit.", datum: "5 December 2024" }
+    ];
+
+    let currentReviewIndex = 0;
+    const container = document.getElementById("testimonial-slider-container");
+
+    function renderReview(index) {
+        const r = reviews[index % reviews.length];
+        const starsFull = "★".repeat(r.sterren) + "☆".repeat(5 - r.sterren);
+        container.innerHTML = `
+            <div class="fade-slide">
+                <div class="stars">${starsFull}</div>
+                <div class="testimonial-title">${escapeHtml(r.titel)}</div>
+                <div class="testimonial-text">“${escapeHtml(r.beschrijving)}”</div>
+                <div class="testimonial-author">- ${escapeHtml(r.naam)}</div>
+                <div class="testimonial-date">${escapeHtml(r.datum)}</div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    if (container) {
+        renderReview(0);
+        setInterval(() => {
+            currentReviewIndex = (currentReviewIndex + 1) % reviews.length;
+            renderReview(currentReviewIndex);
+        }, 8000);
+    }
+</script>
+</body>
+</html>
